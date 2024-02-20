@@ -12,12 +12,21 @@ mongoose.connect(process.env.MONGODB_URI, {
 });
 const db = mongoose.connection;
 db.on("error", console.error.bind(console, "MongoDB connection error:"));
+
+// Check MongoDB connection status
+let mongoDBStatus = "Connecting to MongoDB...";
 db.once("open", () => {
   console.log("✅ Connected to MongoDB");
-  // Send response when MongoDB connection is successful
-  app.get("/", (req, res) => {
-    res.send("MongoDB connection successful");
-  });
+  mongoDBStatus = "MongoDB connection successful";
+});
+db.once("close", () => {
+  console.log("❌ Disconnected from MongoDB");
+  mongoDBStatus = "MongoDB connection failed";
+});
+
+// Root route to check MongoDB connection status
+app.get("/", (req, res) => {
+  res.send(mongoDBStatus);
 });
 
 app.get("/about", (req, res) => {
