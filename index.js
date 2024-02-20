@@ -1,24 +1,37 @@
+require("dotenv").config(); // Load environment variables from .env file
 const express = require("express");
+const mongoose = require("mongoose");
+
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 8000;
 
-// Import MongoDB connection function
-const { connectToMongoDB } = require("./mongoDb");
+// Connect to MongoDB
+mongoose
+  .connect(process.env.MONGODB_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
+  .then(() => {
+    console.log("MongoDB connected successfully!");
+  })
+  .catch((err) => {
+    console.error("MongoDB connection failed:", err);
+  });
 
-// Start the Express server
-app.listen(PORT, async () => {
-  console.log(`Server is running on port ${PORT}`);
-  // Connect to MongoDB
-  await connectToMongoDB();
-});
-
-// Define routes
-app.get("/", async (req, res) => {
-  const connectionSuccessful = await connectToMongoDB();
-  if (connectionSuccessful) {
-    res.send("Hello from Express! MongoDB connection successful");
+// Root route to check MongoDB connection status
+app.get("/", (req, res) => {
+  if (mongoose.connection.readyState === 1) {
+    res.send("MongoDB connection successful");
   } else {
-    res.send("Hello from Express! MongoDB connection failed");
+    res.status(500).send("MongoDB connection failed");
   }
 });
-module.exports = app;
+
+// Import routes
+app.get("/about", (req, res) => {
+  res.send("About route 🎉 ");
+});
+
+app.listen(PORT, () => {
+  console.log(`✅ Server is running on port ${PORT}`);
+});
