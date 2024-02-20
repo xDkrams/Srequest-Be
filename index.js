@@ -12,10 +12,10 @@ mongoose
     useUnifiedTopology: true,
   })
   .then(() => {
-    console.log("✅ Connected to MongoDB");
+    console.log("MongoDB connected successfully!");
   })
-  .catch((error) => {
-    console.error("❌ MongoDB connection error:", error);
+  .catch((err) => {
+    console.error("MongoDB connection failed:", err);
   });
 
 // Root route to check MongoDB connection status
