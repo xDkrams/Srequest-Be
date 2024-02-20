@@ -6,27 +6,25 @@ const app = express();
 const PORT = process.env.PORT || 8000;
 
 // Connect to MongoDB
-mongoose.connect(process.env.MONGODB_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-});
-const db = mongoose.connection;
-db.on("error", console.error.bind(console, "MongoDB connection error:"));
-
-// Check MongoDB connection status
-let mongoDBStatus = "Connecting to MongoDB...";
-db.once("open", () => {
-  console.log("✅ Connected to MongoDB");
-  mongoDBStatus = "MongoDB connection successful";
-});
-db.once("close", () => {
-  console.log("❌ Disconnected from MongoDB");
-  mongoDBStatus = "MongoDB connection failed";
-});
+mongoose
+  .connect(process.env.MONGODB_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
+  .then(() => {
+    console.log("✅ Connected to MongoDB");
+  })
+  .catch((error) => {
+    console.error("❌ MongoDB connection error:", error);
+  });
 
 // Root route to check MongoDB connection status
 app.get("/", (req, res) => {
-  res.send(mongoDBStatus);
+  if (mongoose.connection.readyState === 1) {
+    res.send("MongoDB connection successful");
+  } else {
+    res.status(500).send("MongoDB connection failed");
+  }
 });
 
 app.get("/about", (req, res) => {
