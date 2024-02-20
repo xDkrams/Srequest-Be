@@ -1,10 +1,23 @@
+require("dotenv").config(); // Load environment variables from .env file
 const express = require("express");
+const mongoose = require("mongoose");
 
 const app = express();
-const PORT = 8000;
+const PORT = process.env.PORT || 8000;
 
-app.get("/", (req, res) => {
-  res.send("Hello World");
+// Connect to MongoDB
+mongoose.connect(process.env.MONGODB_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+});
+const db = mongoose.connection;
+db.on("error", console.error.bind(console, "MongoDB connection error:"));
+db.once("open", () => {
+  console.log("✅ Connected to MongoDB");
+  // Send response when MongoDB connection is successful
+  app.get("/", (req, res) => {
+    res.send("MongoDB connection successful");
+  });
 });
 
 app.get("/about", (req, res) => {
